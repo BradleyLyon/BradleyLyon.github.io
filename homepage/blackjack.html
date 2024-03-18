@@ -1,0 +1,201 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+        <link href="styles.css" rel="stylesheet">
+    </head>
+    <body>
+      <nav class="navbar navbar-expand-lg bg-light">
+        <div class="container-fluid">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+              <a class="nav-link" href="index.html">Home</a>
+              <a class="nav-link" aria-current="page" href="essay.html">Essay</a>
+              <a class="nav-link" href="blackjack.html">Blackjack</a>
+              <a class="nav-link" href="keanu.html">GOD</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <h1>Advanced Blackjack</h1>
+    <div>
+        <label for="betAmount">Bet Amount: </label>
+        <input type="number" id="betAmount" value="10" min="10" step="10">
+    </div>
+    <button onclick="startRound()">Start Round</button>
+    <button onclick="playerHit()">Player Hit</button>
+    <button onclick="dealerHit()">Dealer Hit</button>
+    <button onclick="splitHand()">Split Hand</button>
+    <button onclick="doubleDown()">Double Down</button>
+    <button onclick="playerWins()">Player Wins</button>
+    <button onclick="dealerWins()">Dealer Wins</button>
+    <button onclick="endRound()">End Round</button>
+    <button onclick="resetMoney()">Reset Money</button>
+    <div id="player-cards">Player's Cards: </div>
+    <div id="dealer-cards">Dealer's Cards: </div>
+    <div id="deck-count"></div>
+    <div id="player-money">Money: $100</div>
+    <div id="card-counter">Card Counter: 0</div>
+
+    <script>
+        let deck = [];
+        let playerCards = [];
+        let dealerCards = [];
+        let playerMoney = 100;
+        let roundActive = false;
+        let cardCounter = 0;
+        let splitHandActive = false;
+        let playerCardsSplit = [];
+
+        function createDeck() {
+            const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
+            const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace'];
+            deck = []; // Reset deck
+
+            for (let suit of suits) {
+                for (let value of values) {
+                    deck.push({suit: suit, value: value});
+                    deck.push({suit: suit, value: value}); // Two decks
+                }
+            }
+        }
+
+        function shuffleDeck() {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+
+        function updateCardCounter(card) {
+            if (['2', '3', '4', '5', '6'].includes(card.value)) {
+                cardCounter++;
+            } else if (['10', 'Jack', 'Queen', 'King', 'Ace'].includes(card.value)) {
+                cardCounter--;
+            }
+            document.getElementById('card-counter').innerText = 'Card Counter: ' + cardCounter;
+        }
+
+        function dealCard(to) {
+            if (deck.length > 0) {
+                const card = deck.pop();
+                updateCardCounter(card);
+                if (to === 'player') {
+                    playerCards.push(card);
+                    updateDisplay('player');
+                } else if (to === 'dealer') {
+                    dealerCards.push(card);
+                    updateDisplay('dealer');
+                }
+                document.getElementById('deck-count').innerText = 'Deck Count: ' + deck.length;
+            } else {
+                alert('Deck is empty. Please start a new round.');
+                initializeGame();
+            }
+        }
+
+        function updateDisplay(who) {
+            if (who === 'player') {
+                document.getElementById('player-cards').innerText = "Player's Cards: " + playerCards.map(card => card.value + ' of ' + card.suit).join(', ');
+                if (splitHandActive) {
+                    document.getElementById('player-cards').innerText += " | Split Hand: " + playerCardsSplit.map(card => card.value + ' of ' + card.suit).join(', ');
+                }
+            } else if (who === 'dealer') {
+                document.getElementById('dealer-cards').innerText = "Dealer's Cards: " + dealerCards.map(card => card.value + ' of ' + card.suit).join(', ');
+            }
+        }
+
+        function startRound() {
+            let betInput = document.getElementById('betAmount');
+            if (deck.length < 30) {
+                shuffleDeck();
+            }
+            playerCards = [];
+            dealerCards = [];
+            betAmount = parseInt(betInput.value);
+            roundActive = true;
+            splitHandActive = false;
+            playerCardsSplit = [];
+            dealCard('player');
+            dealCard('player');
+            dealCard('dealer');
+        }
+
+        function playerHit() {
+            if (roundActive && !splitHandActive) {
+                dealCard('player');
+            }
+        }
+
+        function dealerHit() {
+            if (roundActive) {
+                dealCard('dealer');
+            }
+        }
+
+        function splitHand() {
+            if (roundActive && playerCards.length === 2 && playerCards[0].value === playerCards[1].value) {
+                splitHandActive = true;
+                playerCardsSplit.push(playerCards.pop()); // Move the second card to the split hand
+                updateDisplay('player');
+            }
+        }
+
+        function doubleDown() {
+            if (roundActive && playerCards.length == 2) {
+                let betInput = document.getElementById('betAmount');
+                betAmount *= 2;
+                betInput.value = betAmount.toString();
+                dealCard('player');
+                endRound();
+            }
+        }
+
+        function playerWins() {
+            if (roundActive) {
+                playerMoney += betAmount;
+                updateMoneyDisplay();
+                roundActive = false;
+            }
+        }
+
+        function dealerWins() {
+            if (roundActive) {
+                playerMoney -= betAmount;
+                updateMoneyDisplay();
+                roundActive = false;
+            }
+        }
+
+        function endRound() {
+            // Use this for non-manual end of round processing
+            roundActive = false;
+        }
+
+        function resetMoney() {
+            playerMoney = 100;
+            updateMoneyDisplay();
+        }
+
+        function updateMoneyDisplay() {
+            document.getElementById('player-money').innerText = 'Money: $' + playerMoney;
+        }
+
+        function initializeGame() {
+            createDeck();
+            shuffleDeck();
+            updateMoneyDisplay();
+            document.getElementById('deck-count').innerText = 'Deck Count: ' + deck.length;
+            document.getElementById('card-counter').innerText = 'Card Counter: ' + cardCounter;
+        }
+
+        window.onload = initializeGame;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,45 @@
+body {
+    text-align: center;
+    background-color: PowderBlue;
+    font-family: "Single Day", serif;
+    font-size: 25px;
+    animation: example 1s infinite;
+}
+
+p.essay {
+    text-indent: 100px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-right: 50px;
+    margin-left: 50px;
+}
+
+.animated-button {
+    background-color: #008CBA;
+    color: #ffffff;
+    font-size: 16px;
+    padding: 10px 20px 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px 0 #006699;
+    width: 350px;
+    animation: example 1s infinite;
+}
+
+@keyframes example {
+    0% {
+        background-color: #2ea3c6;
+    }
+
+    50% {
+        background-color: #69c8dc;
+    }
+
+    100% {
+        background-color: #a7e2e8;
+    }
+}
